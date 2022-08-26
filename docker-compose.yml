@@ -1,0 +1,103 @@
+version: "3.9"
+x-environment: &default-environment
+  DJANGO_SECRET_KEY: insecure_key
+  DJANGO_DEBUG: "true"
+  REDIS_SESSION_URL: redis://redis:6379/0
+  KOBOCAT_BROKER_URL: redis://redis:6379/1
+  KOBOCAT_INTERNAL_URL: http://kobocat:8001
+  KOBOCAT_URL: http://kc.kobo.local:8001
+  CACHE_URL: redis://redis:6379/3
+  #MONGO_DB_URL: mongodb://mongo1:27017,mongo2:27017,mongo3:27017
+  KPI_BROKER_URL: redis://redis:6379/2
+  KOBOFORM_INTERNAL_URL: http://kpi:8000
+  KOBOFORM_URL: http://kf.kobo.local:8000
+  ENKETO_URL: http://ee.kobo.local:8005
+  ENKETO_INTERNAL_URL: http://ee.kobo.local:8005
+  STRIPE_LIVE_MODE: "False"
+  STRIPE_TEST_SECRET_KEY: "sk_test_fake"
+  STRIPE_LIVE_SECRET_KEY: "sk_live_fake"
+  DJSTRIPE_WEBHOOK_VALIDATION: "retrieve_event"
+x-depends_on: &default-depends_on
+  - postgres-kobocat
+  - postgres-kpi
+  - redis
+  - mongo
+
+services:
+  postgres-kobocat:
+    image: postgis/postgis
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+  postgres-kpi:
+    image: postgres
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: "trust"
+  redis:
+    image: redis
+  mongo:
+    image: mongo
+  kobocat:
+    build: ./kobocat
+    depends_on: *default-depends_on
+    environment:
+      <<: *default-environment
+      DATABASE_URL: postgis://postgres:postgres@postgres-kobocat:5432/postgres
+    volumes:
+      - ./kobocat:/srv/src/kobocat
+    command: ./manage.py runserver 0.0.0.0:8001
+    ports:
+      - "8001:8001"
+  kobocat_worker:
+    build: ./kobocat
+    depends_on: *default-depends_on
+    environment:
+      <<: *default-environment
+      DATABASE_URL: postgis://postgres:postgres@postgres-kobocat:5432/postgres
+    volumes:
+      - ./kobocat:/srv/src/kobocat
+    command: celery -A onadata worker -l info -Ofair -B -s /tmp/celerybeat-schedule
+  kpi:
+    build: ./kpi
+    depends_on: *default-depends_on
+    environment:
+      <<: *default-environment
+      DATABASE_URL: postgres://postgres:postgres@postgres-kpi:5432/postgres
+      KC_DATABASE_URL: postgres://postgres:postgres@postgres-kobocat:5432/postgres
+      FRONTEND_DEV_MODE: host
+      ENKETO_CSRF_COOKIE_NAME: monkey
+    volumes:
+      - ./kpi:/srv/src/kpi
+    command: ./manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+  kpi_worker:
+    build: ./kpi
+    depends_on: *default-depends_on
+    environment:
+      <<: *default-environment
+      DATABASE_URL: postgres://postgres:postgres@postgres-kpi:5432/postgres
+      KC_DATABASE_URL: postgres://postgres:postgres@postgres-kobocat:5432/postgres
+    volumes:
+      - ./kpi:/srv/src/kpi
+    command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule --autoscale=1,1
+  enketo_express:
+    image: kobotoolbox/enketo-express-extra-widgets:4.1.1__memory-leak-hotfix
+    #build: ./enketo-express
+    #volumes:
+    #  - ./enketo-express:/srv/src/enketo_express
+    #  - node_modules:/srv/src/enketo_express/node_modules
+    depends_on: *default-depends_on
+    environment:
+      ENKETO_REDIS_MAIN_URL: "redis://redis:6379/3"
+      ENKETO_REDIS_CACHE_URL: "redis://redis:6379/4"
+      ENKETO_MAX_PROCESSES: 1
+      ENKETO_CSRF_COOKIE_NAME: monkey
+      ENKETO_LINKED_FORM_AND_DATA_SERVER_SERVER_URL: kc.kobo.local:8001
+      ENKETO_LINKED_FORM_AND_DATA_SERVER_AUTHENTICATION_ALLOW_INSECURE_TRANSPORT: "true"
+    command: node app.js
+    #command: node_modules/.bin/grunt develop
+    ports:
+      - "8005:8005"
+volumes:
+  node_modules:
+
