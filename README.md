@@ -1,19 +1,31 @@
-Minimalist compose file for development of KoboToolbox
+# First run
 
-# Set up
+1. Build `docker-compose build --pull`
+1. Migrate kobocat `docker-compose run --rm kobocat ./manage.py migrate`
+1. Migrate kpi `docker-compose run --rm kpi ./manage.py migrate`
+1. Make user `docker-compose run --rm kpi ./manage.py createsuperuser`
+1. Edit `/etc/hosts` and add `172.17.0.1  kf.kobo.local kc.kobo.local ee.kobo.local`
 
-1. Clone this repo in a new directory (maybe named kobo?)
-2. Clone kpi and kobocat in the same directory `git clone git@github.com:kobotoolbox/kpi.git; git clone git@github.com:kobotoolbox/kobocat.git`
-3. Edit environment variables as desired.
-4. `docker compose up`
-5. Migrate databases `docker compose run --rm kpi ./manage.py migrate` and `docker compose run --rm kobocat ./manage.py migrate` 
+# Start
 
-# Updates
+1. `docker-compose up`
+1. Run frontend (in own tab) `cd kpi` and `npm run watch`
 
-1. Build on package changes `docker compose build --pull`
-2. Migrate when new migrations are added  `docker compose run --rm kpi ./manage.py migrate` and `docker compose run --rm kobocat ./manage.py migrate` 
+- KPI http://kf.kobo.local
+- EE http://ee.kobo.local:8005 (or localhost:8005)
 
-# Local kpi webpack dev server
+# Rebuild docker images
 
-1. Set env var `FRONTEND_DEV_MODE: host`
-2. In kpi, run `npm i --force` and `npm run watch`
+If python packages in kpi or kobocat change, you can build like this
+
+`docker-compose build --pull`
+
+Run migrate commands when new migrations are added
+
+# Destroy everything and start over
+
+This should be rare. Good if you need to remake databases.
+
+1. `docker-compose down`
+
+Run first run steps again
