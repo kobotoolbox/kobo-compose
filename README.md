@@ -6,6 +6,8 @@
 1. Make user `docker compose run --rm kpi ./manage.py createsuperuser`
 1. Edit `/etc/hosts` and add `172.17.0.1  kf.kobo.local kc.kobo.local ee.kobo.local`
 
+If running webpack locally run `docker compose run --rm kpi npm run build`
+
 # Start
 
 1. `docker compose up`
