@@ -50,6 +50,11 @@ services:
     command: ./manage.py runserver 0.0.0.0:8001
     ports:
       - "8001:8001"
+    networks:
+      default:
+        aliases:
+          - kc.kobo.local
+
   kobocat_worker:
     build: ./kobocat
     depends_on: *default-depends_on
@@ -106,5 +111,10 @@ services:
     #command: node_modules/.bin/grunt develop
     ports:
       - "8005:8005"
+    networks:
+      default:
+        aliases:
+          - ee.kobo.local
+
 volumes:
   node_modules:
