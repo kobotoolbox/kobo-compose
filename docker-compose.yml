@@ -5,6 +5,7 @@ x-environment: &default-environment
   PYTHONUNBUFFERED: 1
   REDIS_SESSION_URL: redis://redis:6379/0
   KOBOCAT_BROKER_URL: redis://redis:6379/1
+  SERVICE_ACCOUNT_BACKEND_URL: redis://redis:6379/4
   KOBOCAT_INTERNAL_URL: http://kobocat:8001
   KOBOCAT_URL: http://kc.kobo.local:8001
   CACHE_URL: redis://redis:6379/3
@@ -14,6 +15,7 @@ x-environment: &default-environment
   KOBOFORM_URL: http://kf.kobo.local:8000
   ENKETO_URL: http://ee.kobo.local:8005
   ENKETO_INTERNAL_URL: http://ee.kobo.local:8005
+  EMAIL_BACKEND: 'django.core.mail.backends.console.EmailBackend'
   #FRONTEND_DEV_MODE: host
   #STRIPE_LIVE_MODE: "False"
   #STRIPE_TEST_SECRET_KEY: "sk_test_fake"
