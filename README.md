@@ -1,10 +1,11 @@
 # First run
 
 1. Build `docker compose build --pull`
-1. Migrate kobocat `docker compose run --rm kobocat ./manage.py migrate`
+1. Migrate kobocat `docker compose run --rm kobocat ./manage.py migrate` (if the database didn't start yet, run `docker compose up` first)
 1. Migrate kpi `docker compose run --rm kpi ./manage.py migrate`
 1. Make user `docker compose run --rm kpi ./manage.py createsuperuser`
 1. Edit `/etc/hosts` and add `172.17.0.1  kf.kobo.local kc.kobo.local ee.kobo.local`
+1. Run `npm i --force` in the kpi directory.
 
 # Start
 
