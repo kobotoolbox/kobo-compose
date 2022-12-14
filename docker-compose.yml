@@ -16,6 +16,10 @@ x-environment: &default-environment
   ENKETO_URL: http://ee.kobo.local:8005
   ENKETO_INTERNAL_URL: http://ee.kobo.local:8005
   EMAIL_BACKEND: 'django.core.mail.backends.console.EmailBackend'
+  # Uncomment for mailhog
+  #EMAIL_BACKEND: 'django.core.mail.backends.smtp.EmailBackend'
+  EMAIL_HOST: mailhog
+  EMAIL_PORT: 1025
   #FRONTEND_DEV_MODE: host
   #STRIPE_LIVE_MODE: "False"
   #STRIPE_TEST_SECRET_KEY: "sk_test_fake"
