@@ -26,21 +26,22 @@ x-environment: &default-environment
   #STRIPE_LIVE_SECRET_KEY: "sk_live_fake"
   #DJSTRIPE_WEBHOOK_VALIDATION: "retrieve_event"
 x-depends_on: &default-depends_on
-  - postgres-kobocat
-  - postgres-kpi
+  - postgres
   - redis
   - mongo
   - nginx
 
 services:
-  postgres-kobocat:
-    image: postgis/postgis
+  postgres:
+    # Switch to postgis/postgis once arm is supported
+    image: kartoza/postgis
     environment:
       POSTGRES_HOST_AUTH_METHOD: "trust"
-  postgres-kpi:
-    image: postgres
-    environment:
-      POSTGRES_HOST_AUTH_METHOD: "trust"
+      # Make the image work more like _/postgres
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASS: "postgres"
+      # Create kobocat database
+      POSTGRES_DBNAME: "postgres,kobocat"
   redis:
     image: redis
   mongo:
@@ -50,7 +51,7 @@ services:
     depends_on: *default-depends_on
     environment:
       <<: *default-environment
-      DATABASE_URL: postgis://postgres:postgres@postgres-kobocat:5432/postgres
+      DATABASE_URL: postgis://postgres:postgres@postgres:5432/kobocat
     volumes:
       - ./kobocat:/srv/src/kobocat
       - ./.vols/kobocat_media_uploads:/srv/src/kobocat/media
@@ -67,7 +68,7 @@ services:
     depends_on: *default-depends_on
     environment:
       <<: *default-environment
-      DATABASE_URL: postgis://postgres:postgres@postgres-kobocat:5432/postgres
+      DATABASE_URL: postgis://postgres:postgres@postgres:5432/kobocat
     volumes:
       - ./kobocat:/srv/src/kobocat
     command: celery -A onadata worker -l info -Ofair -B -s /tmp/celerybeat-schedule
@@ -84,8 +85,8 @@ services:
     depends_on: *default-depends_on
     environment:
       <<: *default-environment
-      DATABASE_URL: postgres://postgres:postgres@postgres-kpi:5432/postgres
-      KC_DATABASE_URL: postgres://postgres:postgres@postgres-kobocat:5432/postgres
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+      KC_DATABASE_URL: postgres://postgres:postgres@postgres:5432/kobocat
     volumes:
       - ./kpi:/srv/src/kpi
     command: ./manage.py runserver 0.0.0.0:8080
@@ -96,8 +97,8 @@ services:
     depends_on: *default-depends_on
     environment:
       <<: *default-environment
-      DATABASE_URL: postgres://postgres:postgres@postgres-kpi:5432/postgres
-      KC_DATABASE_URL: postgres://postgres:postgres@postgres-kobocat:5432/postgres
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+      KC_DATABASE_URL: postgres://postgres:postgres@postgres:5432/kobocat
     volumes:
       - ./kpi:/srv/src/kpi
     command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule --autoscale=1,1
