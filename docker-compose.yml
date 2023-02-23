@@ -33,15 +33,11 @@ x-depends_on: &default-depends_on
 
 services:
   postgres:
-    # Switch to postgis/postgis once arm is supported
-    image: kartoza/postgis
+    image: postgis/postgis
     environment:
       POSTGRES_HOST_AUTH_METHOD: "trust"
-      # Make the image work more like _/postgres
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASS: "postgres"
-      # Create kobocat database
-      POSTGRES_DBNAME: "postgres,kobocat"
+    volumes:
+      - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
   redis:
     image: redis
   mongo:
