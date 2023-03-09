@@ -16,7 +16,6 @@ x-environment: &default-environment
   ENKETO_URL: http://ee.kobo.local:8005
   ENKETO_INTERNAL_URL: http://ee.kobo.local:8005
   EMAIL_BACKEND: 'django.core.mail.backends.console.EmailBackend'
-  DJANGO_LANGUAGE_CODES: "en fr es ar zh-hans hi ku"
   # Uncomment for mailhog
   #EMAIL_BACKEND: 'django.core.mail.backends.smtp.EmailBackend'
   EMAIL_HOST: mailhog
