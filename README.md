@@ -26,6 +26,12 @@ Mailhog will capture all emails sent, regardless of to address.
 
 Go to http://localhost:8025
 
+## Python testing
+
+1. Run from inside a container `docker compose exec -it kpi bash` (Assumes application is already running)
+2. Install dev dependencies if not already done `pip install -r dependencies/pip/dev_requirements.txt`
+3. Run Pytest  `pytest` or to run on a specific directory and reuse the DB (as a speedup) `pytest  --reuse-db kobo/apps/foo`.
+
 # Rebuild docker images
 
 If python packages in kpi or kobocat change, you can build like this
