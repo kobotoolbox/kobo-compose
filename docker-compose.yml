@@ -100,7 +100,7 @@ services:
     command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule --autoscale=1,1
   enketo_express:
     image: kobotoolbox/enketo-express-extra-widgets:6.0.0
-    stop_grace_period: 1s
+    init: true
     #build: ./enketo-express
     #volumes:
     #  - ./enketo-express:/srv/src/enketo_express
