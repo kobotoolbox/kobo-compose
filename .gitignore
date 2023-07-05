@@ -1,0 +1,15 @@
+# os
+.DS_Store
+
+# volumes
+.vols
+storage
+
+# checkouts
+kpi
+kobocat
+kobo-common
+
+# special
+worktree
+kpi-*
