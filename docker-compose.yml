@@ -33,18 +33,18 @@ x-depends_on: &default-depends_on
 
 services:
   postgres:
-    image: postgis/postgis
+    image: postgis/postgis:14-3.3 # 14-3 - kobo-docker uses 14-3.2
     environment:
       POSTGRES_HOST_AUTH_METHOD: "trust"
     volumes:
       - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
       - ./storage/postgres:/var/lib/postgresql/data
   redis:
-    image: redis
+    image: redis:6.2.12 # 6.2 
     volumes:
       - ./storage/redis:/data
   mongo:
-    image: mongo
+    image: mongo:5.0.18 # 5.0 - kobo-no-docker uses 5.0.8
     volumes:
       - ./storage/mongo:/data/db
   kobocat:
@@ -74,7 +74,7 @@ services:
       - ./kobocat:/srv/src/kobocat
     command: celery -A onadata worker -l info -Ofair -B -s /tmp/celerybeat-schedule
   nginx:
-    image: nginx
+    image: nginx:1.25.1 # 1.21
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./.vols/kobocat_media_uploads:/media
