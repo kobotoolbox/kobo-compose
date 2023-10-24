@@ -21,10 +21,10 @@ x-environment: &default-environment
   EMAIL_HOST: mailhog
   EMAIL_PORT: 1025
   #FRONTEND_DEV_MODE: host
-  #STRIPE_LIVE_MODE: "False"
-  #STRIPE_TEST_SECRET_KEY: "sk_test_fake"
-  #STRIPE_LIVE_SECRET_KEY: "sk_live_fake"
-  #DJSTRIPE_WEBHOOK_VALIDATION: "retrieve_event"
+  # STRIPE_LIVE_MODE: "False"
+  # STRIPE_TEST_SECRET_KEY: "sk_test_TXiyRNsBmjWtgYYQ6uFMFK8T00dQsQgqtR"
+  # STRIPE_LIVE_SECRET_KEY: "sk_live_fake"
+  # DJSTRIPE_WEBHOOK_VALIDATION: "retrieve_event"
 x-depends_on: &default-depends_on
   - postgres
   - redis
@@ -55,7 +55,7 @@ services:
       DATABASE_URL: postgis://postgres:postgres@postgres:5432/kobocat
     volumes:
       - ./kobocat:/srv/src/kobocat
-      - ./.vols/kobocat_media_uploads:/srv/src/kobocat/media
+      - ./storage/kobocat_media_uploads:/srv/src/kobocat/media
     command: ./manage.py runserver 0.0.0.0:8001
     ports:
       - "8001:8001"
@@ -77,8 +77,8 @@ services:
     image: nginx:1.25.1 # 1.21
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./.vols/kobocat_media_uploads:/media
-      - ./.vols/kpi_media/__public:/srv/kpi_media/__public
+      - ./storage/kobocat_media_uploads:/media
+      - ./storage/kpi_media/__public:/srv/kpi_media/__public
     ports:
       - "80:8000"
   kpi:
@@ -88,8 +88,10 @@ services:
       <<: *default-environment
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
       KC_DATABASE_URL: postgres://postgres:postgres@postgres:5432/kobocat
+      DJANGO_SETTINGS_MODULE: "kobo.settings.dev"
     volumes:
       - ./kpi:/srv/src/kpi
+      - ./storage/kpi_media:/srv/src/kpi/media
     command: ./manage.py runserver 0.0.0.0:8080
     ports:
       - "8080:8080"
@@ -102,9 +104,12 @@ services:
       KC_DATABASE_URL: postgres://postgres:postgres@postgres:5432/kobocat
     volumes:
       - ./kpi:/srv/src/kpi
+      - ./storage/kpi_media:/srv/src/kpi/media
     command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule --autoscale=1,1
   enketo_express:
-    image: kobotoolbox/enketo-express-extra-widgets:6.0.0
+    image: kobotoolbox/enketo-express-extra-widgets:6.2.0
+    # image: kobotoolbox/enketo-express-extra-widgets:6.0.0
+    # image: kobotoolbox/enketo-express-extra-widgets:6.0.0_plus_pm2-runtime_and_exponential-backoff_jnm
     init: true
     #build: ./enketo-express
     #volumes:
@@ -126,5 +131,5 @@ services:
         aliases:
           - ee.kobo.local
 
-volumes:
-  node_modules:
+# volumes:
+#   node_modules:
