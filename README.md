@@ -48,3 +48,14 @@ Useful to remake databases.
 1. `docker compose down`
 
 Run first run steps again
+
+## Text Editor lint, type checking, and type inference (Optional)
+
+Many editors and cli tools can do type checking and type inference. However, it requires setting up a virtual environment.
+
+1. Install Python 3 dependencies. For Ubuntu this is `apt install python3-dev python3-venv`
+1. Create Python virtual environment `python3 -m venv env`
+1. Activate environment `source env/bin/activate`
+1. Install packages `pip install -r dependencies/pip/dev_requirements.txt`
+
+These are not required but can improve the experience of editing code. Most text editors cannot read these dependencies from the docker container itself.
