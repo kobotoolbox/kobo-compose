@@ -15,6 +15,7 @@ x-environment: &default-environment
   KOBOFORM_URL: http://kf.kobo.local:8000
   ENKETO_URL: http://ee.kobo.local:8005
   ENKETO_INTERNAL_URL: http://ee.kobo.local:8005
+  ENKETO_REDIS_MAIN_URL: redis://redis:6379/0
   EMAIL_BACKEND: 'django.core.mail.backends.console.EmailBackend'
   # Uncomment for mailhog
   #EMAIL_BACKEND: 'django.core.mail.backends.smtp.EmailBackend'
