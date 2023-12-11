@@ -27,6 +27,8 @@ x-environment: &default-environment
   #STRIPE_TEST_SECRET_KEY: "sk_test_fake"
   #STRIPE_LIVE_SECRET_KEY: "sk_live_fake"
   #DJSTRIPE_WEBHOOK_VALIDATION: "retrieve_event"
+  # Uncomment to make breakpoint() call ipython debugger. Also: pip install ipdb
+  #PYTHONBREAKPOINT: "ipdb.set_trace"
 x-depends_on: &default-depends_on
   - postgres
   - redis
