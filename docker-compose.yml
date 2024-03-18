@@ -96,6 +96,7 @@ services:
     volumes:
       - ./kpi:/srv/src/kpi
       - ./storage/kpi_media:/srv/src/kpi/media
+      - ./storage/kobocat_media_uploads:/srv/src/kobocat/media # yay - kpi wants to access these directly sometimes
     command: ./manage.py runserver 0.0.0.0:8080
     ports:
       - "8080:8080"
