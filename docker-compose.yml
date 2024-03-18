@@ -6,26 +6,25 @@ x-environment: &default-environment
   PYTHONUNBUFFERED: 1
 
 # ------------------ NETWORK -----------------------------
-  # ---------------- database ---------------------
+  #                                                   redis,  mongo  network
   REDIS_SESSION_URL:           redis://redis:6379/0
   ENKETO_REDIS_MAIN_URL:       redis://redis:6379/0
   KOBOCAT_BROKER_URL:          redis://redis:6379/1
   KPI_BROKER_URL:              redis://redis:6379/2
   CACHE_URL:                   redis://redis:6379/3
   SERVICE_ACCOUNT_BACKEND_URL: redis://redis:6379/4
-
   MONGO_DB_URL:               mongodb://mongo:27017
 
-  # ------------------ kpi ------------------------
+  #                                                    kpi     (kf)  network
   KOBOFORM_URL:           http://kf.kobo.local:8080
   KOBOFORM_INTERNAL_URL:            http://kpi:8080
-  # ---------------- kobocat ----------------------
+  #                                                    kobocat (kc)  network
   KOBOCAT_URL:            http://kc.kobo.local:8001
   KOBOCAT_INTERNAL_URL:         http://kobocat:8001
-  # ---------------- enketo -----------------------
+  #                                                    enketo  (ee)  network
   ENKETO_URL:             http://ee.kobo.local:8005
   ENKETO_INTERNAL_URL:    http://ee.kobo.local:8005
-  # -----------------------------------------------
+  # 
   SERVICE_ACCOUNT_WHITELISTED_HOSTS: kpi:8080,kobocat:8001
 # --------------------------------------------------------
 
@@ -44,6 +43,16 @@ x-environment: &default-environment
   #PYTHONBREAKPOINT: "ipdb.set_trace"
   # Uncomment and modify to connect to a Sentry project
   # SENTRY_JS_DSN: 'https://<SENTRY_DSN_URL>/'
+
+# 
+# nginx needs to mediate between python (kc) and enketo (node) because python
+#    sends (something something empty body) and node's requests thing doesn't
+#    follow Postel's law
+# 
+# there should be a volume shared b/n kpi and kc.  kpi needs a kc volume
+# 
+
+
 x-depends_on: &default-depends_on
   - postgres
   - redis
@@ -52,7 +61,7 @@ x-depends_on: &default-depends_on
 
 services:
 
-# --------------------------- DATABASES ----------------------------------------
+#                                                         postgres, redis, mongo
 
   postgres:
     image: postgis/postgis:14-3.3 # 14-3 - kobo-docker uses 14-3.2
@@ -72,7 +81,7 @@ services:
     volumes:
       - ./storage/mongo:/data/db
 
-# ---------------------------- NGINX -------------------------------------------
+#                                                                          nginx
 
   nginx:
     image: nginx:1.25.1 # 1.21
@@ -83,7 +92,7 @@ services:
     ports:
       - "80:8000"
 
-# ----------------------------- KPI --------------------------------------------
+#                                                                            kpi
 
   kpi:
     build: ./kpi
@@ -113,7 +122,7 @@ services:
       - ./storage/kpi_media:/srv/src/kpi/media
     command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule --autoscale=1,1
 
-# --------------------------- KOBOCAT ------------------------------------------
+#                                                                        kobocat
 
   kobocat:
     build: ./kobocat
@@ -142,7 +151,7 @@ services:
       - ./kobocat:/srv/src/kobocat
     command: celery -A onadata worker -l info -Ofair -B -s /tmp/celerybeat-schedule
 
-# --------------------------- ENKETO -------------------------------------------
+#                                                                         enketo
 
   enketo_express:
     image: kobotoolbox/enketo-express-extra-widgets:6.2.0
@@ -169,7 +178,7 @@ services:
         aliases:
           - ee.kobo.local
 
-# ------------------------------------------------------------------------------
+#
 
 # volumes:
 #   node_modules:
