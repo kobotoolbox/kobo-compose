@@ -29,6 +29,8 @@ x-environment: &default-environment
   #DJSTRIPE_WEBHOOK_VALIDATION: "retrieve_event"
   # Uncomment to make breakpoint() call ipython debugger. Also: pip install ipdb
   #PYTHONBREAKPOINT: "ipdb.set_trace"
+  # Uncomment and modify to connect to a Sentry project
+  # SENTRY_JS_DSN: 'https://<SENTRY_DSN_URL>/'
 x-depends_on: &default-depends_on
   - postgres
   - redis
