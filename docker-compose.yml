@@ -1,22 +1,35 @@
 version: "3.9"
+
 x-environment: &default-environment
   DJANGO_SECRET_KEY: insecure_key
   DJANGO_DEBUG: "true"
   PYTHONUNBUFFERED: 1
-  REDIS_SESSION_URL: redis://redis:6379/0
-  KOBOCAT_BROKER_URL: redis://redis:6379/1
+
+# ------------------ NETWORK -----------------------------
+  # ---------------- database ---------------------
+  REDIS_SESSION_URL:           redis://redis:6379/0
+  ENKETO_REDIS_MAIN_URL:       redis://redis:6379/0
+  KOBOCAT_BROKER_URL:          redis://redis:6379/1
+  KPI_BROKER_URL:              redis://redis:6379/2
+  CACHE_URL:                   redis://redis:6379/3
   SERVICE_ACCOUNT_BACKEND_URL: redis://redis:6379/4
-  KOBOCAT_INTERNAL_URL: http://kobocat:8001
-  KOBOCAT_URL: http://kc.kobo.local:8001
-  CACHE_URL: redis://redis:6379/3
-  MONGO_DB_URL: mongodb://mongo:27017
-  KPI_BROKER_URL: redis://redis:6379/2
-  KOBOFORM_INTERNAL_URL: http://kpi:8080
-  KOBOFORM_URL: http://kf.kobo.local:8080
-  ENKETO_URL: http://ee.kobo.local:8005
-  ENKETO_INTERNAL_URL: http://ee.kobo.local:8005
-  ENKETO_REDIS_MAIN_URL: redis://redis:6379/0
+
+  MONGO_DB_URL:               mongodb://mongo:27017
+
+  # ------------------ kpi ------------------------
+  KOBOFORM_URL:           http://kf.kobo.local:8080
+  KOBOFORM_INTERNAL_URL:            http://kpi:8080
+  # ---------------- kobocat ----------------------
+  KOBOCAT_URL:            http://kc.kobo.local:8001
+  KOBOCAT_INTERNAL_URL:         http://kobocat:8001
+  # ---------------- enketo -----------------------
+  ENKETO_URL:             http://ee.kobo.local:8005
+  ENKETO_INTERNAL_URL:    http://ee.kobo.local:8005
+  # -----------------------------------------------
   SERVICE_ACCOUNT_WHITELISTED_HOSTS: kpi:8080,kobocat:8001
+# --------------------------------------------------------
+
+
   EMAIL_BACKEND: 'django.core.mail.backends.console.EmailBackend'
   # Uncomment for mailhog
   #EMAIL_BACKEND: 'django.core.mail.backends.smtp.EmailBackend'
@@ -38,6 +51,9 @@ x-depends_on: &default-depends_on
   - nginx
 
 services:
+
+# --------------------------- DATABASES ----------------------------------------
+
   postgres:
     image: postgis/postgis:14-3.3 # 14-3 - kobo-docker uses 14-3.2
     environment:
@@ -45,14 +61,60 @@ services:
     volumes:
       - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
       - ./storage/postgres:/var/lib/postgresql/data
+
   redis:
     image: redis:6.2.12 # 6.2 
     volumes:
       - ./storage/redis:/data
+
   mongo:
     image: mongo:5.0.18 # 5.0 - kobo-no-docker uses 5.0.8
     volumes:
       - ./storage/mongo:/data/db
+
+# ---------------------------- NGINX -------------------------------------------
+
+  nginx:
+    image: nginx:1.25.1 # 1.21
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./storage/kobocat_media_uploads:/media
+      - ./storage/kpi_media/__public:/srv/kpi_media/__public
+    ports:
+      - "80:8000"
+
+# ----------------------------- KPI --------------------------------------------
+
+  kpi:
+    build: ./kpi
+    depends_on: *default-depends_on
+    environment:
+      <<: *default-environment
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+      KC_DATABASE_URL: postgres://postgres:postgres@postgres:5432/kobocat
+      DJANGO_SETTINGS_MODULE: "kobo.settings.dev"
+    volumes:
+      - ./kpi:/srv/src/kpi
+      - ./storage/kpi_media:/srv/src/kpi/media
+      - ./storage/kobocat_media_uploads:/srv/src/kobocat/media # yay - kpi wants to access these directly sometimes
+    command: ./manage.py runserver 0.0.0.0:8080
+    ports:
+      - "8080:8080"
+
+  kpi_worker:
+    build: ./kpi
+    depends_on: *default-depends_on
+    environment:
+      <<: *default-environment
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+      KC_DATABASE_URL: postgres://postgres:postgres@postgres:5432/kobocat
+    volumes:
+      - ./kpi:/srv/src/kpi
+      - ./storage/kpi_media:/srv/src/kpi/media
+    command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule --autoscale=1,1
+
+# --------------------------- KOBOCAT ------------------------------------------
+
   kobocat:
     build: ./kobocat
     depends_on: *default-depends_on
@@ -61,7 +123,7 @@ services:
       DATABASE_URL: postgis://postgres:postgres@postgres:5432/kobocat
     volumes:
       - ./kobocat:/srv/src/kobocat
-      - ./storage/kobocat_media_uploads:/srv/src/kobocat/media
+      - ./storage/kobocat_media_uploads:/srv/src/kobocat/media  # qqq
     command: ./manage.py runserver 0.0.0.0:8001
     ports:
       - "8001:8001"
@@ -79,40 +141,9 @@ services:
     volumes:
       - ./kobocat:/srv/src/kobocat
     command: celery -A onadata worker -l info -Ofair -B -s /tmp/celerybeat-schedule
-  nginx:
-    image: nginx:1.25.1 # 1.21
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./storage/kobocat_media_uploads:/media
-      - ./storage/kpi_media/__public:/srv/kpi_media/__public
-    ports:
-      - "80:8000"
-  kpi:
-    build: ./kpi
-    depends_on: *default-depends_on
-    environment:
-      <<: *default-environment
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
-      KC_DATABASE_URL: postgres://postgres:postgres@postgres:5432/kobocat
-      DJANGO_SETTINGS_MODULE: "kobo.settings.dev"
-    volumes:
-      - ./kpi:/srv/src/kpi
-      - ./storage/kpi_media:/srv/src/kpi/media
-      - ./storage/kobocat_media_uploads:/srv/src/kobocat/media # yay - kpi wants to access these directly sometimes
-    command: ./manage.py runserver 0.0.0.0:8080
-    ports:
-      - "8080:8080"
-  kpi_worker:
-    build: ./kpi
-    depends_on: *default-depends_on
-    environment:
-      <<: *default-environment
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
-      KC_DATABASE_URL: postgres://postgres:postgres@postgres:5432/kobocat
-    volumes:
-      - ./kpi:/srv/src/kpi
-      - ./storage/kpi_media:/srv/src/kpi/media
-    command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule --autoscale=1,1
+
+# --------------------------- ENKETO -------------------------------------------
+
   enketo_express:
     image: kobotoolbox/enketo-express-extra-widgets:6.2.0
     # image: kobotoolbox/enketo-express-extra-widgets:6.0.0
@@ -137,6 +168,8 @@ services:
       default:
         aliases:
           - ee.kobo.local
+
+# ------------------------------------------------------------------------------
 
 # volumes:
 #   node_modules:
