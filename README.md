@@ -3,7 +3,8 @@
 Clone kpi and kobocat repos in this directory
 
 1. Build `docker compose build --pull`
-1. Migrate kobocat `docker compose run --rm kobocat ./manage.py migrate` (if the database didn't start yet, run `docker compose up` first)
+1. Start postgres `docker compose up postgres` this ensures it has time to initialize
+1. Migrate kobocat `docker compose run --rm kobocat ./manage.py migrate`
 1. Migrate kpi `docker compose run --rm kpi ./manage.py migrate`
 1. Make user `docker compose run --rm kpi ./manage.py createsuperuser`
 1. Edit `/etc/hosts` and add `127.0.0.1 kf.kobo.local kc.kobo.local ee.kobo.local`
@@ -47,3 +48,14 @@ Useful to remake databases.
 1. `docker compose down`
 
 Run first run steps again
+
+## Text Editor lint, type checking, and type inference (Optional)
+
+Many editors and cli tools can do type checking and type inference. However, it requires setting up a virtual environment.
+
+1. Install Python 3 dependencies. For Ubuntu this is `apt install python3-dev python3-venv`
+1. Create Python virtual environment `python3 -m venv env`
+1. Activate environment `source env/bin/activate`
+1. Install packages `pip install -r dependencies/pip/dev_requirements.txt`
+
+These are not required but can improve the experience of editing code. Most text editors cannot read these dependencies from the docker container itself.
