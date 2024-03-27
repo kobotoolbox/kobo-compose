@@ -15,16 +15,17 @@ x-environment: &default-environment
   MONGO_DB_URL:               mongodb://mongo:27017
 
   #                                                    kpi     (kf)  network
-  KOBOFORM_URL:           http://kf.kobo.local:8080
-  KOBOFORM_INTERNAL_URL:            http://kpi:8080
+  KOBOFORM_URL:           http://kf.kobo.local
+  KOBOFORM_INTERNAL_URL:  http://kf.kobo.local
   #                                                    kobocat (kc)  network
-  KOBOCAT_URL:            http://kc.kobo.local:8001
-  KOBOCAT_INTERNAL_URL:         http://kobocat:8001
+  KOBOCAT_URL:            http://kc.kobo.local
+  KOBOCAT_INTERNAL_URL:   http://kc.kobo.local
   #                                                    enketo  (ee)  network
-  ENKETO_URL:             http://ee.kobo.local:8005
-  ENKETO_INTERNAL_URL:    http://ee.kobo.local:8005
+  ENKETO_URL:             http://ee.kobo.local
+  ENKETO_INTERNAL_URL:    http://ee.kobo.local
   # 
-  SERVICE_ACCOUNT_WHITELISTED_HOSTS: kpi:8080,kobocat:8001
+  # SERVICE_ACCOUNT_WHITELISTED_HOSTS: kpi:8080,kobocat:8001   # TODO: check this
+  SERVICE_ACCOUNT_WHITELISTED_HOSTS: kf.kobo.local,kc.kobo.local   # TODO: check this
 # --------------------------------------------------------
 
 
@@ -50,6 +51,10 @@ x-environment: &default-environment
 # 
 # there should be a volume shared b/n kpi and kc.  kpi needs a kc volume
 # 
+
+
+
+# todo — isolate/remove comments.  rearrange is OK.  keep old unpinned image versions.
 
 
 x-depends_on: &default-depends_on
@@ -89,7 +94,13 @@ services:
       - ./storage/kobocat_media_uploads:/media
       - ./storage/kpi_media/__public:/srv/kpi_media/__public
     ports:
-      - "80:8000"
+      - "80:80"
+    networks:
+      default:
+        aliases:
+          - kf.kobo.local
+          - kc.kobo.local
+          - ee.kobo.local
 
 #                                                                            kpi
 
@@ -108,6 +119,10 @@ services:
     command: ./manage.py runserver 0.0.0.0:8080
     ports:
       - "8080:8080"
+    # networks:
+    #   default:
+    #     aliases:
+    #       - kpi
 
   kpi_worker:
     build: ./kpi
@@ -138,7 +153,11 @@ services:
     networks:
       default:
         aliases:
-          - kc.kobo.local
+          - kobocat
+    # networks:
+    #   default:
+    #     aliases:
+    #       - kc.kobo.local
 
   kobocat_worker:
     build: ./kobocat
@@ -166,16 +185,16 @@ services:
       ENKETO_REDIS_MAIN_URL: "redis://redis:6379"
       ENKETO_REDIS_CACHE_URL: "redis://redis:6379"
       ENKETO_MAX_PROCESSES: 1
-      ENKETO_LINKED_FORM_AND_DATA_SERVER_SERVER_URL: kc.kobo.local:8001
+      ENKETO_LINKED_FORM_AND_DATA_SERVER_SERVER_URL: kc.kobo.local
       ENKETO_LINKED_FORM_AND_DATA_SERVER_AUTHENTICATION_ALLOW_INSECURE_TRANSPORT: "true"
     command: node app.js
     #command: node_modules/.bin/grunt develop
     ports:
       - "8005:8005"
-    networks:
-      default:
-        aliases:
-          - ee.kobo.local
+    # networks:
+    #   default:
+    #     aliases:
+    #       - ee.kobo.local
 
 #
 
