@@ -2,19 +2,22 @@ x-environment: &default-environment
   DJANGO_SECRET_KEY: insecure_key
   DJANGO_DEBUG: "true"
   PYTHONUNBUFFERED: 1
+
   REDIS_SESSION_URL: redis://redis:6379/0
+  ENKETO_REDIS_MAIN_URL: redis://redis:6379/0
+  KPI_BROKER_URL: redis://redis:6379/2
   KOBOCAT_BROKER_URL: redis://redis:6379/1
+  CACHE_URL: redis://redis:6379/3
   SERVICE_ACCOUNT_BACKEND_URL: redis://redis:6379/4
+  
+  PUBLIC_REQUEST_SCHEME: http
   KOBOCAT_INTERNAL_URL: http://kobocat:8001
   KOBOCAT_URL: http://kc.kobo.local:8001
-  CACHE_URL: redis://redis:6379/3
   MONGO_DB_URL: mongodb://mongo:27017
-  KPI_BROKER_URL: redis://redis:6379/2
   KOBOFORM_INTERNAL_URL: http://kpi:8080
   KOBOFORM_URL: http://kf.kobo.local:8080
   ENKETO_URL: http://ee.kobo.local:8005
   ENKETO_INTERNAL_URL: http://ee.kobo.local:8005
-  ENKETO_REDIS_MAIN_URL: redis://redis:6379/0
   SERVICE_ACCOUNT_WHITELISTED_HOSTS: kpi:8080,kobocat:8001
   EMAIL_BACKEND: 'django.core.mail.backends.console.EmailBackend'
   # Uncomment for mailhog
