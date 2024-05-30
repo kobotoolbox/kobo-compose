@@ -112,6 +112,7 @@ services:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
       KC_DATABASE_URL: postgres://postgres:postgres@postgres:5432/kobocat
       DJANGO_SETTINGS_MODULE: "kobo.settings.dev"
+      PUBLIC_REQUEST_SCHEME: http
     volumes:
       - ./kpi:/srv/src/kpi
       - ./storage/kpi_media:/srv/src/kpi/media
