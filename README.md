@@ -1,3 +1,9 @@
+# :warning: ATTENTION - UNSUPPORTED
+
+This repository is used internally by some KoboToolbox developers and shared here in the hope that it may be helpful to others.
+There is ABSOLUTELY NO SUPPORT offered for this code: not in the issue tracker, not in the discussion forum, not via email, not anywhere! You have been warned.
+If you are seeking to run your own instance of KoboToolbox, you should look at https://github.com/kobotoolbox/kobo-install/, or, for large installs, consider Kubernetes: https://github.com/kobotoolbox/kobo-helm-chart
+
 # First run
 
 Clone kpi and kobocat repos in this directory
