@@ -6,8 +6,8 @@ Clone kpi repo in this directory
 1. Start postgres `docker compose up postgres` this ensures it has time to initialize
 1. Run Django database migrations `docker compose run -rm kpi scripts/migrate.sh`
 1. Make user `docker compose run --rm kpi ./manage.py createsuperuser`
-1. Edit `/etc/hosts` and add `127.0.0.1 kf.kobo.local kc.kobo.local ee.kobo.local`
-1. Run `npm i --force` in the kpi directory.
+1. Edit `/etc/hosts` and add `127.0.0.1 kf.kobo.local ee.kobo.local`
+1. Run `npm i` in the kpi directory.
 
 # Start
 
