@@ -48,25 +48,8 @@ services:
     image: redis
   mongo:
     image: mongo
-  kobocat:
-    build: ./kobocat
-    depends_on: *default-depends_on
-    environment:
-      <<: *default-environment
-      DATABASE_URL: postgis://postgres:postgres@postgres:5432/kobocat
-    volumes:
-      - ./kobocat:/srv/src/kobocat
-      - ./.vols/kobocat_media_uploads:/srv/src/kobocat/media
-    command: ./manage.py runserver 0.0.0.0:8001
-    ports:
-      - "8001:8001"
-    networks:
-      default:
-        aliases:
-          - kc.kobo.local
-
   kobocat_worker:
-    build: ./kobocat
+    build: ./kpi
     depends_on: *default-depends_on
     environment:
       <<: *default-environment
@@ -88,7 +71,7 @@ services:
     environment:
       <<: *default-environment
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
-      KC_DATABASE_URL: postgres://postgres:postgres@postgres:5432/kobocat
+      KC_DATABASE_URL: postgis://postgres:postgres@postgres:5432/kobocat
     volumes:
       - ./kpi:/srv/src/kpi
       - ./.vols/kobocat_media_uploads:/srv/src/kobocat/media
@@ -101,7 +84,7 @@ services:
     environment:
       <<: *default-environment
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
-      KC_DATABASE_URL: postgres://postgres:postgres@postgres:5432/kobocat
+      KC_DATABASE_URL: postgis://postgres:postgres@postgres:5432/kobocat
     volumes:
       - ./kpi:/srv/src/kpi
     command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule --autoscale=1,1
