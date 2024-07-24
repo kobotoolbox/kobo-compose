@@ -12,7 +12,7 @@ Clone kpi repo in this directory
 # Start
 
 1. `docker compose up`
-  1. To enable pdb debugging for kpi in the terminal, use `docker compose -f docker-compose.yml -f docker-compose-dev.yml up`
+    1. To enable pdb debugging for kpi in the terminal, use `docker compose -f docker-compose.yml -f docker-compose-dev.yml up`
 1. Run frontend (in own tab) `cd kpi` and `npm run watch`
 
 - KPI http://kf.kobo.local
