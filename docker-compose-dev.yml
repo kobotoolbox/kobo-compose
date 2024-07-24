@@ -1,0 +1,4 @@
+services:
+  kpi:
+    stdin_open: true
+    tty: true
