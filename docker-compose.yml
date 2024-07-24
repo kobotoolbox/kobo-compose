@@ -73,6 +73,8 @@ services:
       default:
         aliases:
           - kf.kobo.local
+    stdin_open: true
+    tty: true
   kpi_worker:
     build: ./kpi
     depends_on: *default-depends_on
