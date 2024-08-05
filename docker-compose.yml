@@ -3,7 +3,7 @@ x-environment: &default-environment
   DJANGO_DEBUG: "true"
   PYTHONUNBUFFERED: 1
 
-  DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+  DATABASE_URL: postgis://postgres:postgres@postgres:5432/postgres
   KC_DATABASE_URL: postgis://postgres:postgres@postgres:5432/kobocat
 
   REDIS_SESSION_URL: redis://redis:6379/0
