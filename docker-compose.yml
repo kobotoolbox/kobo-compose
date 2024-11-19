@@ -82,6 +82,7 @@ services:
       <<: *default-environment
     volumes:
       - ./kpi:/srv/src/kpi
+      - ./.vols/kobocat_media_uploads:/srv/src/kobocat/media
     command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule --autoscale=1,1 -Q kpi_low_priority_queue,kpi_queue,kobocat_queue
   enketo_express:
     image: kobotoolbox/enketo-express-extra-widgets:6.0.0
