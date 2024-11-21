@@ -13,6 +13,7 @@ x-environment: &default-environment
   SERVICE_ACCOUNT_BACKEND_URL: redis://redis:6379
   
   PUBLIC_REQUEST_SCHEME: http
+  SESSION_COOKIE_DOMAIN: .kobo.local
   KOBOCAT_INTERNAL_URL: http://kpi:8080
   KOBOCAT_URL: http://kf.kobo.local:8080
   MONGO_DB_URL: mongodb://mongo:27017
@@ -82,9 +83,9 @@ services:
       <<: *default-environment
     volumes:
       - ./kpi:/srv/src/kpi
-    command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule --autoscale=1,1 -Q kpi_low_priority_queue,kpi_queue,kobocat_queue
+    command: celery -A kobo worker -l info -s /tmp/celerybeat-schedule --pool threads -Q kpi_low_priority_queue,kpi_queue,kobocat_queue
   enketo_express:
-    image: kobotoolbox/enketo-express-extra-widgets:6.0.0
+    image: kobotoolbox/enketo-express-extra-widgets:6.2.2
     init: true
     #build: ./enketo-express
     #volumes:
@@ -95,7 +96,7 @@ services:
       ENKETO_REDIS_MAIN_URL: "redis://redis:6379"
       ENKETO_REDIS_CACHE_URL: "redis://redis:6379"
       ENKETO_MAX_PROCESSES: 1
-      ENKETO_LINKED_FORM_AND_DATA_SERVER_SERVER_URL: kf.kobo.local:8080
+      ENKETO_LINKED_FORM_AND_DATA_SERVER_SERVER_URL: ""
       ENKETO_LINKED_FORM_AND_DATA_SERVER_AUTHENTICATION_ALLOW_INSECURE_TRANSPORT: "true"
     command: node app.js
     #command: node_modules/.bin/grunt develop
