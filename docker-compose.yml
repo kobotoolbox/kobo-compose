@@ -83,7 +83,7 @@ services:
       <<: *default-environment
     volumes:
       - ./kpi:/srv/src/kpi
-    command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule --pool threads -Q kpi_low_priority_queue,kpi_queue,kobocat_queue
+    command: celery -A kobo worker -l info -B -s /tmp/celerybeat-schedule -Q kpi_low_priority_queue,kpi_queue,kobocat_queue --scheduler django_celery_beat.schedulers:DatabaseScheduler
   enketo_express:
     image: kobotoolbox/enketo-express-extra-widgets:6.2.2
     init: true
