@@ -1,6 +1,6 @@
 x-environment: &default-environment
   DJANGO_SECRET_KEY: insecure_key
-  DJANGO_DEBUG: "True"
+  DJANGO_DEBUG: "true"
   PYTHONUNBUFFERED: 1
 
   DATABASE_URL: postgis://postgres:postgres@postgres:5432/postgres
@@ -11,7 +11,7 @@ x-environment: &default-environment
   CELERY_BROKER_URL: redis://redis:6379
   CACHE_URL: redis://redis:6379
   SERVICE_ACCOUNT_BACKEND_URL: redis://redis:6379
-
+  
   PUBLIC_REQUEST_SCHEME: http
   SESSION_COOKIE_DOMAIN: .kobo.local
   KOBOCAT_INTERNAL_URL: http://kpi:8080
@@ -22,20 +22,15 @@ x-environment: &default-environment
   ENKETO_URL: http://ee.kobo.local:8005
   ENKETO_INTERNAL_URL: http://ee.kobo.local:8005
   SERVICE_ACCOUNT_WHITELISTED_HOSTS: kpi:8080,kobocat:8001
-  #EMAIL_BACKEND: 'django.core.mail.backends.filebased.EmailBackend'
-  MASS_EMAILS_CONDENSE_SEND: True
-  DEFAULT_FROM_NAME: 'Kobo'
+  EMAIL_BACKEND: 'django.core.mail.backends.console.EmailBackend'
   # Uncomment for mailhog
-  EMAIL_BACKEND: 'django.core.mail.backends.smtp.EmailBackend'
+  #EMAIL_BACKEND: 'django.core.mail.backends.smtp.EmailBackend'
   EMAIL_HOST: mailhog
   EMAIL_PORT: 1025
   #FRONTEND_DEV_MODE: host
-  STRIPE_LIVE_MODE: "False"
-  STRIPE_TEST_SECRET_KEY: "sk_test_TXiyRNsBmjWtgYYQ6uFMFK8T00dQsQgqtR"
-  STRIPE_TEST_PUBLIC_KEY: "pk_test_qliDXQRyVGPWmsYR69tB1NPx00ndTrJfVM"
-  STRIPE_ENABLED: True
-  DJANGO_SETTINGS_MODULE: kobo.settings.dev
-  GS_BUCKET_NAME: 'kobo-transcription-test'
+  #STRIPE_LIVE_MODE: "False"
+  #STRIPE_TEST_SECRET_KEY: "sk_test_fake"
+  #STRIPE_LIVE_SECRET_KEY: "sk_live_fake"
   #DJSTRIPE_WEBHOOK_VALIDATION: "retrieve_event"
   # Uncomment to make breakpoint() call ipython debugger. Also: pip install ipdb
   #PYTHONBREAKPOINT: "ipdb.set_trace"
@@ -72,7 +67,7 @@ services:
     volumes:
       - ./kpi:/srv/src/kpi
       - ./.vols/kobocat_media_uploads:/srv/src/kobocat/media
-    command: ./manage.py runserver_plus 0.0.0.0:8080
+    command: ./manage.py runserver 0.0.0.0:8080
     ports:
       - "8080:8080"
     networks:
@@ -103,7 +98,6 @@ services:
       ENKETO_MAX_PROCESSES: 1
       ENKETO_LINKED_FORM_AND_DATA_SERVER_SERVER_URL: ""
       ENKETO_LINKED_FORM_AND_DATA_SERVER_AUTHENTICATION_ALLOW_INSECURE_TRANSPORT: "true"
-      ENKETO_IP_FILTERING_ALLOW_PRIVATE_IP_ADDRESS: "true"
     command: node app.js
     #command: node_modules/.bin/grunt develop
     ports:
