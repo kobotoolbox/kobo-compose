@@ -27,6 +27,10 @@ x-environment: &default-environment
   #EMAIL_BACKEND: 'django.core.mail.backends.smtp.EmailBackend'
   EMAIL_HOST: mailhog
   EMAIL_PORT: 1025
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-""}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-""}
+  AWS_BEDROCK_REGION_NAME: ${AWS_BEDROCK_REGION_NAME:-us-east-1}
+  #GS_BUCKET_NAME: 'kobo-transcription-test'
   #FRONTEND_DEV_MODE: host
   #STRIPE_LIVE_MODE: "False"
   #STRIPE_TEST_SECRET_KEY: "sk_test_fake"
